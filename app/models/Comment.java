@@ -18,6 +18,8 @@ public class Comment extends Model {
     @Lob
     public String  content;
     public String  agent;
+    @OneToOne
+    @JoinColumn(nullable = true)
     public Comment parent;
     @ManyToOne
     public Article article;
