@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.PrePersist;
+import javax.persistence.Query;
 
 
 /**
@@ -42,11 +43,22 @@ public class NestedSet extends GenericModel {
     @PrePersist
     public void insertNode() {
     
+        // Get Parent Node
         NestedSet parentNode = JPA.em().find(this.getClass(), this.parent);
         
-        JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET rgt = rgt + 2 WHERE rgt >= " + parentNode.rgt).executeUpdate();
-        JPA.execute("UPDATE " + this.getClass().getSimpleName() + " SET lft = lft + 2 WHERE rgt >= " + parentNode.rgt + " AND lft <> 1 AND lft > "
-                + parentNode.lft + "");
+        Query q;
+        
+        // Update All Right Column Value
+        q = JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET rgt = rgt + 2 WHERE rgt >= ?");
+        q.setParameter(1, parentNode.rgt);
+        q.executeUpdate();
+        
+        // Update All Left Column Value
+        q = JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET lft = lft + 2 WHERE rgt >= ? AND lft <> 1 AND lft > ?");
+        q.setParameter(1, parentNode.rgt);
+        q.setParameter(2, parentNode.lft);
+        q.executeUpdate();
+        
         this.lft = parentNode.rgt;
         this.rgt = this.lft + 1;
     }
