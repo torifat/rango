@@ -1,5 +1,7 @@
 package models;
 
+import java.util.List;
+
 import play.db.jpa.*;
 import play.data.validation.Min;
 
@@ -64,5 +66,14 @@ public class NestedSet extends GenericModel {
                 parentNode.save();
             }
         }
+    }
+    
+    public List<NestedSet> getChildren() {
+    
+        Query q = JPA.em().createQuery("SELECT ns FROM " + this.getClass().getSimpleName() + " ns WHERE lft > ? AND lft < ?");
+        q.setParameter(1, this.lft);
+        q.setParameter(2, this.rgt);
+        
+        return q.getResultList();
     }
 }
