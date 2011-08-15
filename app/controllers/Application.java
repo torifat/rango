@@ -12,8 +12,10 @@ public class Application extends Controller {
     
     public static void index() {
     
-        new Category("Test", (long) 1).save();
+        Category root = new Category("Root").save();
+        Logger.debug("Category %s added with id %d", root.name, root.id);
+        new Category("Sub1", root.id).save();
+        
         render();
     }
-    
 }

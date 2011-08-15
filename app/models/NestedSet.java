@@ -1,7 +1,7 @@
 package models;
 
-import play.data.validation.Min;
 import play.db.jpa.*;
+import play.data.validation.Min;
 
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -23,9 +23,9 @@ public class NestedSet extends GenericModel {
     public String  name;
     
     @Min(1)
-    private Long   lft;
+    private Long   lft = 1l;
     @Min(2)
-    private Long   rgt;
+    private Long   rgt = 2l;
     protected Long parent;
     
     
@@ -44,22 +44,25 @@ public class NestedSet extends GenericModel {
     public void insertNode() {
     
         // Get Parent Node
-        NestedSet parentNode = JPA.em().find(this.getClass(), this.parent);
-        
-        Query q;
-        
-        // Update All Right Column Value
-        q = JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET rgt = rgt + 2 WHERE rgt >= ?");
-        q.setParameter(1, parentNode.rgt);
-        q.executeUpdate();
-        
-        // Update All Left Column Value
-        q = JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET lft = lft + 2 WHERE rgt >= ? AND lft <> 1 AND lft > ?");
-        q.setParameter(1, parentNode.rgt);
-        q.setParameter(2, parentNode.lft);
-        q.executeUpdate();
-        
-        this.lft = parentNode.rgt;
-        this.rgt = this.lft + 1;
+        if (this.parent != null) {
+            NestedSet parentNode = JPA.em().find(this.getClass(), this.parent);
+            
+            // If Parent Node Found
+            if (parentNode != null) {
+                
+                Query q;
+                
+                // Update All Changed Columns
+                q = JPA.em().createQuery("UPDATE " + this.getClass().getSimpleName() + " SET rgt = rgt + 2, lft = lft + 2 WHERE rgt > ?");
+                q.setParameter(1, parentNode.rgt);
+                q.executeUpdate();
+                
+                this.lft = parentNode.rgt;
+                this.rgt = this.lft + 1;
+                
+                parentNode.rgt = parentNode.rgt + 2;
+                parentNode.save();
+            }
+        }
     }
 }
