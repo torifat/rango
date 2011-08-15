@@ -7,10 +7,13 @@ import java.util.*;
 
 import models.*;
 
-public class Application extends Controller {
 
+public class Application extends Controller {
+    
     public static void index() {
+    
+        new Category("Test", (long) 1).save();
         render();
     }
-
+    
 }
