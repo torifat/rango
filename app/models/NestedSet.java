@@ -68,7 +68,7 @@ public class NestedSet extends GenericModel {
         }
     }
     
-    public List<NestedSet> getChildren() {
+    public <T extends NestedSet> List<T> getChildren() {
     
         Query q = JPA.em().createQuery("SELECT ns FROM " + this.getClass().getSimpleName() + " ns WHERE lft > ? AND lft < ?");
         q.setParameter(1, this.lft);
